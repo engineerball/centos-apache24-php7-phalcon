@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+PHP_ERROR_REPORTING=${PHP_ERROR_REPORTING:-"E_ALL"}
+sed -ri 's/^display_errors\s*=\s*Off/display_errors = On/g' /etc/php.ini
+sed -ri "s/^error_reporting\s*=.*$//g" /etc/php.ini
+echo "error_reporting = $PHP_ERROR_REPORTING" >> /etc/php.ini
+
+#Configure Phalcon and PHP
+mkdir -p /etc/php.d
+echo "extension=phalcon.so" > /etc/php.d/phalcon.ini && \
+#echo "extension=mcrypt.so" > /etc/php.d/22-mcrypt.ini && \
+sed -i -e "s/;opcache.enable=0/opcache.enable=1/g" /etc/php.ini
+
+source /etc/sysconfig/httpd  && exec /usr/sbin/httpd -DFOREGROUND
